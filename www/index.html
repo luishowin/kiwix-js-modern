@@ -36,11 +36,31 @@
         along with Kiwix (file LICENSE-GPLv3.txt).  If not, see <https://www.gnu.org/licenses/>
 
         -->
-        <!-- Pre-apply theme to prevent flash of unstyled content -->
-        <script type="text/javascript" src="js/theme-init.js"></script>
+        <!-- Critical inline: theme + background applied before anything else loads -->
+        <style>
+            html { background: #FCFCFC; }
+            html.dark { background: #141414; color: #FFFFFF; }
+            body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        </style>
+        <script>
+        (function () {
+            var kp = 'kiwixjs-';
+            function g(k) {
+                try { var v = localStorage.getItem(kp + k); if (v !== null) return v; } catch (e) {}
+                var m = document.cookie.match(new RegExp('(?:^|; )' + encodeURIComponent(k) + '=([^;]*)'));
+                return m ? decodeURIComponent(m[1]) : null;
+            }
+            var t = g('appTheme') || 'light';
+            var d = t.indexOf('dark') !== -1 || (t.indexOf('auto') !== -1 && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (d) document.documentElement.classList.add('dark');
+            document.documentElement.style.backgroundColor = d ? '#141414' : '#FCFCFC';
+        })();
+        </script>
         <!-- Bootstrap -->
         <link rel="manifest" href="../manifest.webmanifest" />
         <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+        <!-- Design system tokens must load before app.css so variables are available -->
+        <link rel="stylesheet" href="css/design-system.css"/>
         <!-- Local app.css must be loaded after boostrap.css so that any local style overrides work -->
         <link rel="stylesheet" href="css/app.css"/>
         <link rel="stylesheet" href="css/transition.css"/>
@@ -86,46 +106,39 @@
         </div>
         <section id="search-article" role="region">
             <header id="top">
-                <nav class="navbar navbar-expand-md bg-light" role="navigation">
-                    <a id="appVersion" class="navbar-brand">Kiwix</a>
+                <nav class="kiwix-navbar" role="navigation">
+                    <a id="appVersion" class="kiwix-logo" href="#">KIWIX</a>
 
                     <!-- Toggler/collapsible Button -->
                     <button class="navbar-toggler" type="button" data-toggle="collapse"
                         data-target=".navbar-collapse">
-                        <i class="fas fa-bars"></i>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
                     </button>
 
-                    <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="collapsibleNavbar">
                         <ul class="navbar-nav">
-                            <li id="liHomeNav" class="nav-item"><button tabindex="1" type="button" data-i18n="home" class="btn btn-light btn-nav-top" id="btnHome">Home</button></li>
-                            <li id="liConfigureNav" class="nav-item"><button tabindex="2" type="button" data-i18n="configure" class="btn btn-light btn-nav-top" id="btnConfigure">Configure</button></li>
-                            <li id="liAboutNav" class="nav-item"><button tabindex="3" type="button" data-i18n="about" class="btn btn-light btn-nav-top" id="btnAbout">About</button></li>
+                            <li id="liHomeNav" class="nav-item"><button tabindex="1" type="button" data-i18n="home" class="btn btn-nav-top" id="btnHome">Home</button></li>
+                            <li id="liConfigureNav" class="nav-item"><button tabindex="2" type="button" data-i18n="configure" class="btn btn-nav-top" id="btnConfigure">Configure</button></li>
+                            <li id="liAboutNav" class="nav-item"><button tabindex="3" type="button" data-i18n="about" class="btn btn-nav-top" id="btnAbout">About</button></li>
                         </ul>
-                    </div>
 
-                </nav>
-
-                <form id="formArticleSearch" role="search" aria-label="Search articles">
-                    <div class="container">
-                        <div class="row">
-                            <span class="col-9">
-                                <span class="input-group">
-                                    <input type="search" data-i18n-tip="home-prefix-tip" title="You can search the contents of your ZIM archive using this search field. It will suggest article titles **starting** with the letters you type." id="prefix" placeholder="Search..." class="form-control" autocomplete="off" />
-                                    <button type="button" data-i18n-tip="home-search" title="Search" class="btn btn-outline-secondary" id="searchArticles"><i class="fas fa-search"></i></button>
-                                </span>
-                            </span>
-                            <span class="col-3">
-                                <span class="btn-group">
-                                    <button type="button" data-i18n-tip="home-btn-colourscheme-tip" title="Cycle between light, dark and auto themes" class="btn btn-outline-secondary" id="btnColourScheme"><i class="fas fa-moon"></i></button>
-                                </span>
-                                <span class="btn-group">
-                                    <button type="button" data-i18n-tip="home-btn-random-tip" title="Select a random article to display" class="btn btn-outline-secondary" id="btnRandomArticle"><i class="fas fa-random"></i></button>
-                                </span>
-                            </span>
+                        <div class="kiwix-navbar-search">
+                            <form id="formArticleSearch" role="search" aria-label="Search articles">
+                                <div class="kiwix-search-inline">
+                                    <svg class="kiwix-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <input type="search" data-i18n-tip="home-prefix-tip" title="Search articles" id="prefix" placeholder="Search..." class="kiwix-search-input" autocomplete="off" />
+                                    <button type="button" data-i18n-tip="home-search" title="Search" id="searchArticles" class="kiwix-search-submit">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </form>
+
+                    <button type="button" data-i18n-tip="home-btn-colourscheme-tip" title="Cycle between light, dark and auto themes" class="kiwix-theme-toggle" id="btnColourScheme">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    </button>
+                </nav>
             </header>
             
             <article class="view-content">
@@ -791,8 +804,36 @@
                     </div>
                     <br />
                 </div>
-                <div data-i18n="home-welcome-text" id="welcomeText" class="container">
-                    Once you have loaded a ZIM archive, you can search its contents using the above search field.
+                <div id="welcomeText" class="kiwix-home">
+                    <div class="kiwix-home-logo">KIWIX</div>
+                    <div class="kiwix-home-search">
+                        <div class="kiwix-home-search-bar">
+                            <svg class="kiwix-home-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="search" id="homeSearchInput" placeholder="Search your library..." class="kiwix-home-input" autocomplete="off" />
+                            <div class="kiwix-home-search-actions">
+                                <button type="button" class="kiwix-home-icon-btn" title="Voice search" disabled>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                                </button>
+                                <button type="button" class="kiwix-home-icon-btn" title="Image search" disabled>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                </button>
+                                <button type="button" class="kiwix-home-icon-btn" title="AI mode" disabled>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kiwix-home-actions">
+                        <button type="button" class="kiwix-btn-secondary" id="btnRandomArticle" data-i18n-tip="home-btn-random-tip" title="Select a random article to display">I'm Feeling Lucky</button>
+                    </div>
+                    <div class="kiwix-home-library" id="homeLibrary">
+                        <div class="kiwix-home-library-empty" id="homeLibraryEmpty">
+                            <p>No archives loaded.</p>
+                            <button type="button" class="kiwix-btn-secondary" id="homeSelectFolder">Select source folder</button>
+                        </div>
+                        <div class="kiwix-home-library-list" id="homeLibraryList" style="display:none;"></div>
+                    </div>
+                    <div class="kiwix-home-version" id="homeVersion"></div>
                 </div>
 
                 <!-- List of articles matching the typed prefix -->
@@ -822,18 +863,16 @@
                         <span id="alertMessage"></span>
                     </div>
                 </div>
-                <div id="navigationButtons" class="btn-group btn-block">
+                <!-- Hidden elements preserved for JS compatibility -->
+                <div id="navigationButtons" style="display:none;">
                     <div class="dropup">
-                        <button class="btn btn-lg dropdown-toggle col-xs-4" id="dropup" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="true" style="font-size: 14px;">
-                            <i class="fas fa-list-alt fa-lg"></i>
-                        </button>
+                        <button class="btn btn-lg dropdown-toggle" id="dropup" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="fas fa-list-alt"></i></button>
                         <ul id="ToCList" class="dropdown-menu flex-container"></ul>
                     </div>
-                    <a href="#" data-i18n-tip="home" class="btn btn-lg" id="btnHomeBottom" title="Home"><i class="fas fa-home"></i></a>
-                    <a href="#" class="btn btn-lg" data-i18n-tip="home-btn-back" id="btnBack" title="Back"><i class="fas fa-arrow-left"></i></a>
-                    <a href="#" class="btn btn-lg" data-i18n-tip="home-btn-forward" id="btnForward" title="Forward"><i class="fas fa-arrow-right"></i></a>
-                    <a href="#top" class="btn btn-lg" data-i18n-tip="home-btn-top" id="btnTop" title="Top"><i class="fas fa-arrow-up"></i></a>
+                    <a href="#" id="btnHomeBottom" class="btn"><i class="fas fa-home"></i></a>
+                    <a href="#" id="btnBack" class="btn"><i class="fas fa-arrow-left"></i></a>
+                    <a href="#" id="btnForward" class="btn"><i class="fas fa-arrow-right"></i></a>
+                    <a href="#top" id="btnTop" class="btn"><i class="fas fa-arrow-up"></i></a>
                 </div>
             </footer>
         </section>
@@ -845,5 +884,112 @@
     <script type="text/javascript" src="js/init.js"></script>
     <script type="module" defer src="js/app.js"></script>
     <!-- <script type="text/javascript" defer src="js/bundle.js"></script> -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var homeInput = document.getElementById('homeSearchInput');
+        var navInput = document.getElementById('prefix');
+        var searchBtn = document.getElementById('searchArticles');
+        var logo = document.getElementById('appVersion');
+
+        // Sync home search with navbar search
+        if (homeInput && navInput) {
+            homeInput.addEventListener('input', function () { navInput.value = this.value; });
+            homeInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { e.preventDefault(); navInput.value = this.value; searchBtn.click(); }
+            });
+            navInput.addEventListener('input', function () { homeInput.value = this.value; });
+        }
+
+        // Logo clicks go home
+        if (logo) {
+            logo.addEventListener('click', function (e) {
+                e.preventDefault();
+                var btnHome = document.getElementById('btnHome');
+                if (btnHome) btnHome.click();
+            });
+        }
+
+        // Select folder button on home triggers the configure file picker
+        var homeSelectFolder = document.getElementById('homeSelectFolder');
+        if (homeSelectFolder) {
+            homeSelectFolder.addEventListener('click', function () {
+                var folderInput = document.getElementById('archiveFolders');
+                var fileInput = document.getElementById('archiveFiles');
+                if (folderInput && folderInput.parentElement.style.display !== 'none') {
+                    folderInput.click();
+                } else if (fileInput) {
+                    fileInput.click();
+                }
+            });
+        }
+    });
+
+    function selectArchiveFromHome(value) {
+        var archiveList = document.getElementById('archiveList');
+        if (!archiveList) return;
+        archiveList.value = value;
+        archiveList.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
+    }
+
+    function populateHomeZimList() {
+        var archiveList = document.getElementById('archiveList');
+        var homeList = document.getElementById('homeLibraryList');
+        var homeEmpty = document.getElementById('homeLibraryEmpty');
+        if (!archiveList || !homeList || !homeEmpty) return;
+
+        var options = archiveList.querySelectorAll('option:not([disabled])');
+        if (options.length === 0) {
+            homeEmpty.style.display = '';
+            homeList.style.display = 'none';
+            return;
+        }
+
+        homeEmpty.style.display = 'none';
+        homeList.style.display = '';
+        homeList.innerHTML = '';
+
+        var currentVal = archiveList.value;
+
+        for (var i = 0; i < options.length; i++) {
+            (function (opt) {
+                var btn = document.createElement('button');
+                btn.className = 'kiwix-home-zim-item';
+                var isActive = opt.value === currentVal;
+                if (isActive) btn.classList.add('active');
+
+                var nameSpan = document.createElement('span');
+                nameSpan.textContent = opt.textContent;
+                btn.appendChild(nameSpan);
+
+                if (isActive) {
+                    var dot = document.createElement('span');
+                    dot.className = 'zim-indicator';
+                    btn.appendChild(dot);
+                }
+
+                btn.addEventListener('click', function () {
+                    selectArchiveFromHome(opt.value);
+                    var items = document.querySelectorAll('.kiwix-home-zim-item');
+                    for (var j = 0; j < items.length; j++) {
+                        items[j].classList.remove('active');
+                        var oldDot = items[j].querySelector('.zim-indicator');
+                        if (oldDot) oldDot.remove();
+                    }
+                    this.classList.add('active');
+                    var newDot = document.createElement('span');
+                    newDot.className = 'zim-indicator';
+                    this.appendChild(newDot);
+                });
+
+                homeList.appendChild(btn);
+            })(options[i]);
+        }
+    }
+
+    var archiveListEl = document.getElementById('archiveList');
+    if (archiveListEl) {
+        new MutationObserver(populateHomeZimList).observe(archiveListEl, { childList: true, subtree: true });
+    }
+    </script>
 </body>
 </html>

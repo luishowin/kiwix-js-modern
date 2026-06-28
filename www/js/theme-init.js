@@ -1,7 +1,6 @@
 // Prevent white flash on reload by applying correct background
 (function () {
 
-    // DEV: keyPrefix must match params['keyPrefix'] in init.js
     var keyPrefix = 'kiwixjs-';
 
     function getStoredValue(key) {
@@ -9,7 +8,6 @@
             var val = localStorage.getItem(keyPrefix + key);
             if (val !== null) return val;
         } catch (e) { // eslint-disable-line no-unused-vars
-            // Ignore errors when localStorage is unavailable
         }
 
         var match = document.cookie.match(
@@ -20,7 +18,6 @@
     }
 
     var storedTheme = getStoredValue('appTheme') || 'light';
-    var appCache = getStoredValue('appCache');
 
     function prefersDark() {
         return window.matchMedia &&
@@ -37,13 +34,10 @@
 
     var htmlEl = document.documentElement;
 
-    if (appCache === null || appCache === 'true') {
-        if (isDark) {
-            htmlEl.classList.add('dark');
-        } 
-    } else {
-        htmlEl.style.backgroundColor =
-            isDark ? '#300000' : 'mistyrose';
+    if (isDark) {
+        htmlEl.classList.add('dark');
     }
+
+    htmlEl.style.backgroundColor = isDark ? '#141414' : '#FCFCFC';
 
 })();

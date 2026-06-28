@@ -114,6 +114,7 @@ const precacheFiles = [
     'i18n/es.jsonp.js',
     'i18n/fr.jsonp.js',
     'www/css/app.css',
+    'www/css/design-system.css',
     'www/css/kiwixJS_invert.css',
     'www/css/kiwixJS_mwInvert.css',
     'www/css/transition.css',

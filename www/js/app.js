@@ -446,10 +446,11 @@ document.getElementById('btnHome').addEventListener('click', function (event) {
     var articleContent = document.getElementById('articleContent');
     var articleContentDoc = articleContent ? articleContent.contentDocument : null;
     while (articleContentDoc.firstChild) articleContentDoc.removeChild(articleContentDoc.firstChild);
-    if (selectedArchive && selectedArchive.isReady()) {
-        document.getElementById('welcomeText').style.display = 'none';
-        goToMainArticle();
-    }
+    // Always show the home/welcome page with search
+    document.getElementById('welcomeText').style.display = '';
+    document.getElementById('articleContent').style.display = 'none';
+    // Populate the home ZIM list if archives are available
+    if (typeof populateHomeZimList === 'function') populateHomeZimList();
     // Use a timeout of 400ms because uiUtil.applyAnimationToSection uses a timeout of 300ms
     setTimeout(resizeIFrame, 400);
 });
@@ -1020,13 +1021,8 @@ function getAssetsCacheAttributes () {
 function refreshCacheStatus () {
     // Update radio buttons and checkbox
     document.getElementById('cachedAssetsModeRadio' + (params.assetsCache ? 'True' : 'False')).checked = true;
-    // Change app's background colour if the bypass appCacche setting is enabled, as a visible warning
     const docElement = document.documentElement;
-    if (params.appCache) {
-        docElement.style.removeProperty('background');
-    } else {
-        docElement.style.background = /dark/.test(docElement.classList) ? '#300000' : 'mistyrose';
-    }
+    docElement.style.removeProperty('background');
     // Hide or show the jqueryCompatibility info
     document.getElementById('jqueryCompatibility').style.display = params.contentInjectionMode === 'jquery' ? '' : 'none';
     // Get cache attributes, then update the UI with the obtained data

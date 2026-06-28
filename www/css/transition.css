@@ -1,11 +1,11 @@
 .slideOut_R {
     transform: translateX(0%);
-    animation: moveOutR 0.3s linear forwards;
+    animation: moveOutR var(--kiwix-duration-slow, 0.3s) var(--kiwix-easing, ease) forwards;
 }
 
 .slideIn_R {
     transform: translateX(-100%);
-    animation: moveInR 0.3s linear forwards;
+    animation: moveInR var(--kiwix-duration-slow, 0.3s) var(--kiwix-easing, ease) forwards;
 }
 
 @keyframes moveOutR {
@@ -30,12 +30,12 @@
 
 .slideOut_L {
     transform: translateX(0%);
-    animation: moveOutL 0.3s linear forwards;
+    animation: moveOutL var(--kiwix-duration-slow, 0.3s) var(--kiwix-easing, ease) forwards;
 }
 
 .slideIn_L {
     transform: translateX(100%);
-    animation: moveInL 0.3s linear forwards;
+    animation: moveInL var(--kiwix-duration-slow, 0.3s) var(--kiwix-easing, ease) forwards;
 }
 
 @keyframes moveOutL {
