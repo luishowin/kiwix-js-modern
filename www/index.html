@@ -927,8 +927,7 @@
     function selectArchiveFromHome(value) {
         var archiveList = document.getElementById('archiveList');
         if (!archiveList) return;
-        archiveList.value = value;
-        archiveList.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
+        archiveList.dispatchEvent(new CustomEvent('kiwix-select', { detail: { value: value } }));
     }
 
     function populateHomeZimList() {

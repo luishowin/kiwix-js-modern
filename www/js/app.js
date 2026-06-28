@@ -421,6 +421,9 @@ document.getElementById('btnTop').addEventListener('click', function (event) {
     articleContent.contentWindow.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+// Flag: when true, btnHome shows the article (set after archive loads)
+var showArticleOnHome = false;
+
 // Top menu :
 document.getElementById('btnHome').addEventListener('click', function (event) {
     // Highlight the selected section in the navbar
@@ -441,16 +444,24 @@ document.getElementById('btnHome').addEventListener('click', function (event) {
     while (articleList.firstChild) articleList.removeChild(articleList.firstChild);
     while (articleListHeaderMessage.firstChild) articleListHeaderMessage.removeChild(articleListHeaderMessage.firstChild);
     uiUtil.spinnerDisplay(false);
-    // document.getElementById('articleContent').style.display = 'none';
-    // Empty and purge the article contents
-    var articleContent = document.getElementById('articleContent');
-    var articleContentDoc = articleContent ? articleContent.contentDocument : null;
-    while (articleContentDoc.firstChild) articleContentDoc.removeChild(articleContentDoc.firstChild);
-    // Always show the home/welcome page with search
-    document.getElementById('welcomeText').style.display = '';
-    document.getElementById('articleContent').style.display = 'none';
-    // Populate the home ZIM list if archives are available
-    if (typeof populateHomeZimList === 'function') populateHomeZimList();
+
+    if (showArticleOnHome && selectedArchive && selectedArchive.isReady()) {
+        // Archive just loaded — show the article, hide welcome
+        showArticleOnHome = false;
+        document.getElementById('welcomeText').style.display = 'none';
+        document.getElementById('articleContent').style.display = '';
+        goToMainArticle();
+    } else {
+        // User navigated home — show welcome page with search and catalog
+        var articleContent = document.getElementById('articleContent');
+        var articleContentDoc = articleContent ? articleContent.contentDocument : null;
+        if (articleContentDoc) {
+            while (articleContentDoc.firstChild) articleContentDoc.removeChild(articleContentDoc.firstChild);
+        }
+        document.getElementById('welcomeText').style.display = '';
+        document.getElementById('articleContent').style.display = 'none';
+        if (typeof populateHomeZimList === 'function') populateHomeZimList();
+    }
     // Use a timeout of 400ms because uiUtil.applyAnimationToSection uses a timeout of 300ms
     setTimeout(resizeIFrame, 400);
 });
@@ -1668,6 +1679,14 @@ comboArchiveList.addEventListener('keydown', function (e) {
 
 let selectFired = false;
 
+comboArchiveList.addEventListener('kiwix-select', function (e) {
+    if (e.detail && e.detail.value) {
+        comboArchiveList.value = e.detail.value;
+        selectFired = false;
+        handleArchiveListChange();
+    }
+});
+
 /**
  * Routes archive selection from dropdown to the appropriate loading mechanism
  * based on which API populated the dropdown
@@ -2162,7 +2181,8 @@ async function archiveReadyCallback (archive) {
     if (params.contentInjectionMode === 'serviceworker') {
         initServiceWorkerMessaging();
     }
-    // The archive is set: go back to home page to start searching
+    // The archive is set: go back to home page and show the article
+    showArticleOnHome = true;
     document.getElementById('btnHome').click();
     document.getElementById('downloadInstruction').style.display = 'none';
     // Reset selectFired flag to allow reselecting the same archive
