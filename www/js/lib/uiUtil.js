@@ -1211,55 +1211,19 @@ function applyInvertContentTheme(contentTheme, doc, articleContent) {
  * Updates the colour scheme button icon to reflect the current theme
  * @param {String} theme The full theme string (e.g., 'light', 'dark_wikimediaNative', 'auto_wikimediaNative')
  */
+var ICON_SUN = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+var ICON_MOON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
 function updateColourSchemeButton(theme) {
-    // Extract base theme (light, dark, or auto)
-    var baseTheme = theme.replace(/_.*$/, '');
-    var isCurrentlyDark = isDarkTheme(theme); // Check if currently resolving to dark (handles auto mode)
-    console.debug('[updateColourSchemeButton] theme:', theme, '| baseTheme:', baseTheme, '| isCurrentlyDark:', isCurrentlyDark);
-
-    // Note: Font Awesome converts <i> to <svg> and uses data-icon attribute
-    // We check for SVG first (modern browsers + IE11), then fall back to <i> (if SVG conversion disabled)
-    var btnIcon = document.querySelector('#btnColourScheme svg') || document.querySelector('#btnColourScheme i');
-    if (btnIcon) {
-        var icon;
-        // Use cached darkPreference MediaQueryList (defined in app.js)
-        var osPrefersDark = window.darkPreference.matches;
-        // Show icon for the NEXT state (what clicking will do)
-        // The adjust icon appears on the forced mode that matches OS preference
-        // sun icon = "click to force light", moon icon = "click to force dark", adjust = "click for auto"
-        if (baseTheme === 'light') {
-            // Currently forced light
-            if (osPrefersDark) {
-                // OS prefers dark, so from light go to dark
-                icon = 'moon';
-            } else {
-                // OS prefers light (matches current), so from light go to auto
-                icon = 'adjust';
-            }
-        } else if (baseTheme === 'dark') {
-            // Currently forced dark
-            if (osPrefersDark) {
-                // OS prefers dark (matches current), so from dark go to auto
-                icon = 'adjust';
-            } else {
-                // OS prefers light, so from dark go to light
-                icon = 'sun';
-            }
-        } else {
-            // Currently auto - show icon for opposite of what auto is showing
-            icon = isCurrentlyDark ? 'sun' : 'moon';
-        }
-        console.debug('[updateColourSchemeButton] Setting icon to:', icon, '| osPrefersDark:', osPrefersDark);
-
-        if (btnIcon.tagName === 'svg' || btnIcon.tagName === 'SVG') {
-            // SVG element: update data-icon attribute (works in all browsers including IE11)
-            btnIcon.setAttribute('data-icon', icon);
-        } else {
-            // <i> element: update classes (only if Font Awesome SVG conversion is disabled)
-            btnIcon.classList.remove('fa-moon', 'fa-sun', 'fa-adjust');
-            btnIcon.classList.add('fa-' + icon);
-        }
-    }
+    var btn = document.getElementById('btnColourScheme');
+    if (!btn) return;
+    var isCurrentlyDark = isDarkTheme(theme);
+    // Show the icon for the CURRENT state's opposite action:
+    // dark mode -> sun (click to go light); light mode -> moon (click to go dark)
+    btn.innerHTML = isCurrentlyDark ? ICON_SUN : ICON_MOON;
+    btn.setAttribute('title', isCurrentlyDark
+        ? (translateUI.t('home-btn-colourscheme-tip-light') || 'Switch to light theme')
+        : (translateUI.t('home-btn-colourscheme-tip-dark') || 'Switch to dark theme'));
 }
 
 /**

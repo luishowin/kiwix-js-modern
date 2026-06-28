@@ -26,9 +26,8 @@
 // The global parameters object is defined in init.js
 /* global params, webpMachine */
 
-// import styles from '../css/app.css' assert { type: "css" };
-// import bootstrap from '../css/bootstrap.min.css' assert { type: "css" };
-import '../../node_modules/@fortawesome/fontawesome-free/js/all.js';
+// FontAwesome was removed in the UI modernization — all icons are now inline SVG.
+// This eliminated a ~1.3MB runtime dependency and the Vite cold-start reload it caused.
 import zimArchiveLoader from './lib/zimArchiveLoader.js';
 import uiUtil from './lib/uiUtil.js';
 import popovers from './lib/popovers.js';
@@ -460,7 +459,8 @@ document.getElementById('btnHome').addEventListener('click', function (event) {
         }
         document.getElementById('welcomeText').style.display = '';
         document.getElementById('articleContent').style.display = 'none';
-        if (typeof populateHomeZimList === 'function') populateHomeZimList();
+        // populateHomeZimList is a global defined by the inline bootstrap script in index.html
+        if (typeof window.populateHomeZimList === 'function') window.populateHomeZimList();
     }
     // Use a timeout of 400ms because uiUtil.applyAnimationToSection uses a timeout of 300ms
     setTimeout(resizeIFrame, 400);
@@ -660,36 +660,10 @@ document.getElementById('appThemeSelect').addEventListener('change', function (e
     refreshCacheStatus();
 });
 document.getElementById('btnColourScheme').addEventListener('click', function () {
-    // Adaptive cycle based on OS preference to ensure all 3 modes are accessible
-    var baseTheme = params.appTheme.replace(/_.*$/, ''); // Get base theme (light, dark, or auto)
-    var isDark = uiUtil.isDarkTheme(params.appTheme); // Check if currently resolving to dark
-    var osPrefersDark = window.darkPreference.matches; // Use cached MediaQueryList
-    console.debug('[btnColourScheme] Current params.appTheme:', params.appTheme, '| baseTheme:', baseTheme, '| isDark:', isDark, '| osPrefersDark:', osPrefersDark);
-
-    if (baseTheme === 'light') {
-        // From forced light - check if we should go to auto or dark
-        if (!osPrefersDark) {
-            // OS is light (matches current forced mode), so go to auto
-            params.appTheme = 'auto_wikimediaNative';
-        } else {
-            // OS is dark (opposite), so go to dark forced
-            params.appTheme = 'dark_wikimediaNative';
-        }
-    } else if (baseTheme === 'dark') {
-        // From forced dark - check if we should go to auto or light
-        if (osPrefersDark) {
-            // OS is dark (matches current forced mode), so go to auto
-            params.appTheme = 'auto_wikimediaNative';
-        } else {
-            // OS is light (opposite), so go to light forced
-            params.appTheme = 'light';
-        }
-    } else {
-        // Currently auto -> force the opposite of what auto is showing
-        params.appTheme = isDark ? 'light' : 'dark_wikimediaNative';
-    }
-    console.debug('[btnColourScheme] New params.appTheme:', params.appTheme);
-
+    // Simple, predictable toggle: flip between light and dark
+    // (The Configuration dropdown still offers auto and inversion variants for power users)
+    var isDark = uiUtil.isDarkTheme(params.appTheme);
+    params.appTheme = isDark ? 'light' : 'dark_wikimediaNative';
     settingsStore.setItem('appTheme', params.appTheme, Infinity);
     uiUtil.applyAppTheme(params.appTheme);
     document.getElementById('appThemeSelect').value = params.appTheme;
