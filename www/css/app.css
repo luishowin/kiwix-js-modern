@@ -1044,6 +1044,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focu
 .dark .alert { border-color: var(--kiwix-border); }
 
 
+/* Content themes for article iframe — inverts ZIM content for dark mode */
+/* kiwixJS_invert.css / kiwixJS_mwInvert.css inside the iframe re-invert images */
+iframe._invert, iframe._mwInvert {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+
 /* ============================================================
    KEYFRAMES
    ============================================================ */
